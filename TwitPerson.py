@@ -16,9 +16,13 @@ class TwitPerson:
         self.tweets = self.get_init_tweets()
 
     def get_init_tweets(self ):
-        response = self.browser.open("https://twitter.com/"+self.handle)
-        text = response.read()
-        soup = BeautifulSoup(text, 'html.parser')
+        try:
+            response = self.browser.open("https://twitter.com/"+self.handle)
+            text = response.read()
+            soup = BeautifulSoup(text, 'html.parser')
+        except:
+            print ('No user found with that id.')
+            return 1
 
         tweets = [p.text for p in soup.findAll('p', class_='tweet-text')[0:5]]
         return tweets
@@ -35,10 +39,8 @@ class TwitPerson:
         return browser
 
     def new_tweets(self):
-        print ('checking for new tweets')
         response = self.browser.open("https://twitter.com/" + self.handle)
         text = response.read()
-
         soup = BeautifulSoup(text, 'html.parser')
 
         last_collected_tweet_found = False
@@ -48,9 +50,7 @@ class TwitPerson:
             tweets = [p.text for p in soup.findAll('p', class_='tweet-text')[start_index:end_index]]
             for tw in tweets:
                 if tw in self.tweets:
-                    print('already in collected tweets')
                     last_collected_tweet_found = True
-                    print(last_collected_tweet_found)
                     return tweets
                 else: # add to self.tweets
                     print ('new tweet ', tw)
